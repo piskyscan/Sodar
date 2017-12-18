@@ -6,7 +6,7 @@
 #include <math.h>
 #include <alsa/asoundlib.h>
 
-#define JITTER_RANGE 10  // range to check for correlation in.  -10 to +10 samples.
+#define JITTER_RANGE 15  // range to check for correlation in.  -10 to +10 samples.
 
 static void calcCorrelation(char *, int );
 static void testEndian();
@@ -100,10 +100,6 @@ int main() {
 
     calcCorrelation(buffer, rc);
 
-    // rc = write(1, buffer, size);
-//    if (rc != size)
-//      fprintf(stderr,
-//              "short write: wrote %d bytes\n", rc);
   }
 
   snd_pcm_drain(handle);
@@ -131,6 +127,8 @@ void calcCorrelation(char *src, int size)
 	double corr;
 	char output[100];
 	int len;
+	double maxCorr = -2;
+	int offset = 0;
 
 	int count = size - 2 * JITTER_RANGE;
 
@@ -144,6 +142,8 @@ void calcCorrelation(char *src, int size)
 		sumx = 0;
 		sumy=0;
 		sumxy = 0;
+		sumx2 = 0;
+		sumy2 = 0;
 
 		for (j = 0;j < count;j++)
 		{
@@ -158,9 +158,15 @@ void calcCorrelation(char *src, int size)
 		}
 
 		corr = (count*sumxy - sumx * sumy)/(sqrt((count * sumx2 - sumx*sumx)*(count * sumy2 - sumy*sumy)));
-		len = sprintf(output, "%d, %f\n",i - JITTER_RANGE,corr);
-		write(1, output, len);
+		if (corr > maxCorr)
+		{
+			maxCorr = corr;
+			offset = i - JITTER_RANGE;
+		}
 	}
+
+	len = sprintf(output, "%d, %f\n",offset,maxCorr);
+	write(1, output, len);
 
 	len = sprintf(output, "----------------\n");
 	write(1, output, len);
