@@ -9,6 +9,7 @@
 #define JITTER_RANGE 10  // range to check for correlation in.  -10 to +10 samples.
 
 static void calcCorrelation(char *, int );
+static void testEndian();
 
 int main() {
   long loops;
@@ -20,6 +21,8 @@ int main() {
   int dir;
   snd_pcm_uframes_t frames;
   char *buffer;
+
+  testEndian();
 
   /* Open PCM device for recording (capture). */
   rc = snd_pcm_open(&handle, "default",
@@ -124,7 +127,7 @@ void calcCorrelation(char *src, int size)
 	double sumx2;
 	double sumy2;
 	double sumxy;
-	int32_t x,y;
+	double x,y;
 	double corr;
 	char output[100];
 	int len;
@@ -164,3 +167,17 @@ void calcCorrelation(char *src, int size)
 
 }
 
+
+char test[] = {0x00,0xC4,0xFF,0xFF,0x00,0x88,0xFF,0xFF};
+
+void testEndian()
+{
+	int32_t v1 = getBufferVal(test,0,0,2);
+	int32_t v2 = getBufferVal(test,0,1,2);
+
+	if (v1 != -15360 || v2 != -30720)
+	{
+		fprintf(stderr,
+				"Endian test failes\n");
+	}
+}
