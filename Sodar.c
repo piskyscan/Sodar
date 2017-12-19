@@ -27,17 +27,19 @@ int main() {
   long loops;
   int rc;
   int size;
-  snd_pcm_t *handle;
-  snd_pcm_hw_params_t *params;
   unsigned int val;
   int dir;
-  snd_pcm_uframes_t frames;
   correlation_results corr_results;
   double position = 0;
   double varianceSum = 0;
   char output[100];
   int len;
   char *buffer;
+
+  snd_pcm_uframes_t frames;
+  snd_pcm_t *handle;
+  snd_pcm_hw_params_t *params;
+
 
   testEndian();
 
@@ -121,8 +123,7 @@ int main() {
 
   }
 
-
-  len = sprintf(output, "%f\n",position/varianceSum);
+  len = sprintf(output, "%f, %f\n",position/varianceSum, varianceSum/corr_results.count );
   write(1, output, len);
 
 //  len = sprintf(output, "----------------\n");
