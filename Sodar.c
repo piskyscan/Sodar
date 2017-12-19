@@ -6,8 +6,8 @@
 #include <math.h>
 #include <alsa/asoundlib.h>
 
-#define JITTER_RANGE 15  // range to check for correlation in.  -10 to +10 samples.
-
+#define JITTER_RANGE 10  // range to check for correlation in.  -10 to +10 samples.
+#define IGNORE_SECONDS 0.3  // Microphone take time to warm up.
 
 typedef struct
 {
@@ -23,7 +23,8 @@ static void calcCorrelation(char *, int,correlation_results  *);
 static void testEndian();
 
 
-int main() {
+int main()
+{
   long loops;
   int rc;
   int size;
@@ -35,6 +36,9 @@ int main() {
   char output[100];
   int len;
   char *buffer;
+  int ignore_count;
+  int k;
+  int countSum = 0;
 
   snd_pcm_uframes_t frames;
   snd_pcm_t *handle;
@@ -77,8 +81,8 @@ int main() {
   snd_pcm_hw_params_set_rate_near(handle, params,
                                   &val, &dir);
 
-  /* Set period size to 32 frames. */
-  frames = 2048;
+  /* Set period size to 1024 frames. */
+  frames = 1024;
   snd_pcm_hw_params_set_period_size_near(handle,
                               params, &frames, &dir);
 
@@ -97,15 +101,21 @@ int main() {
   size = frames * 8; /* 4 bytes/sample, 2 channels */
   buffer = (char *) malloc(size);
 
-  /* We want to loop for 1 seconds */
+  /* We want to loop for 10 seconds */
   snd_pcm_hw_params_get_period_time(params,
                                          &val, &dir);
   loops = 100000 / val;
+  ignore_count = IGNORE_SECONDS/val;
 
-  while (loops > 0) {
-    loops--;
+  k = 0;
+
+  while (loops > 0)
+  {
+    loops--;k++;
+
     rc = snd_pcm_readi(handle, buffer, frames);
-    if (rc == -EPIPE) {
+    if (rc == -EPIPE)
+    {
       /* EPIPE means overrun */
       fprintf(stderr, "overrun occurred\n");
       snd_pcm_prepare(handle);
@@ -117,17 +127,18 @@ int main() {
       fprintf(stderr, "short read, read %d frames\n", rc);
     }
 
-    calcCorrelation(buffer, rc, &corr_results);
-    position = position + corr_results.position * corr_results.sy2 * corr_results.correlation;
-    varianceSum = varianceSum + corr_results.sy2 * corr_results.correlation;
-
+    if (k > ignore_count)
+    {
+    	calcCorrelation(buffer, rc, &corr_results);
+    	position = position + corr_results.position * corr_results.sy2 * corr_results.correlation;
+    	varianceSum = varianceSum + corr_results.sy2 * corr_results.correlation;
+    	countSum = countSum + corr_results.count;
+    }
   }
 
-  len = sprintf(output, "%f, %f\n",position/varianceSum, varianceSum/corr_results.count );
+  len = sprintf(output, "%f, %f\n",position/varianceSum, log(varianceSum/countSum));
   write(1, output, len);
 
-//  len = sprintf(output, "----------------\n");
-//  write(1, output, len);
 
   snd_pcm_drain(handle);
   snd_pcm_close(handle);
