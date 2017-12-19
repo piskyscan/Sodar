@@ -39,6 +39,7 @@ int main()
   int ignore_count;
   int k;
   int countSum = 0;
+  char temp[8];
 
   snd_pcm_uframes_t frames;
   snd_pcm_t *handle;
@@ -66,25 +67,61 @@ int main()
   /* Set the desired hardware parameters. */
 
   /* Interleaved mode */
-  snd_pcm_hw_params_set_access(handle, params,
+  rc = snd_pcm_hw_params_set_access(handle, params,
                       SND_PCM_ACCESS_RW_INTERLEAVED);
+  if (rc != 0) {
+    fprintf(stderr,
+            "snd_pcm_hw_params_set_access: %s\n",
+            snd_strerror(rc));
+    exit(1);
+  }
+
 
   /* Signed 16-bit little-endian format */
-  snd_pcm_hw_params_set_format(handle, params,
+  rc = snd_pcm_hw_params_set_format(handle, params,
                               SND_PCM_FORMAT_S32_LE);
+  if (rc != 0) {
+    fprintf(stderr,
+            "snd_pcm_hw_params_set_format: %s\n",
+            snd_strerror(rc));
+    exit(1);
+  }
+
 
   /* Two channels (stereo) */
-  snd_pcm_hw_params_set_channels(handle, params, 2);
+  rc = snd_pcm_hw_params_set_channels(handle, params, 2);
+
+  if (rc != 0) {
+    fprintf(stderr,
+            "snd_pcm_hw_params_set_channels: %s\n",
+            snd_strerror(rc));
+    exit(1);
+  }
+
 
   /* 48000 bits per second (max) */
   val = 48000;
-  snd_pcm_hw_params_set_rate_near(handle, params,
+  rc = snd_pcm_hw_params_set_rate_near(handle, params,
                                   &val, &dir);
+  if (rc != 0) {
+    fprintf(stderr,
+            "snd_pcm_hw_params_set_rate_near: %s\n",
+            snd_strerror(rc));
+    exit(1);
+  }
+
 
   /* Set period size to 1024 frames. */
   frames = 1024;
-  snd_pcm_hw_params_set_period_size_near(handle,
+  rc  = snd_pcm_hw_params_set_period_size_near(handle,
                               params, &frames, &dir);
+
+  if (rc != 0) {
+    fprintf(stderr,
+            "snd_pcm_hw_params_set_period_size_near: %s\n",
+            snd_strerror(rc));
+    exit(1);
+  }
 
   /* Write the parameters to the driver */
   rc = snd_pcm_hw_params(handle, params);
