@@ -8,8 +8,20 @@
 
 #define JITTER_RANGE 15  // range to check for correlation in.  -10 to +10 samples.
 
-static void calcCorrelation(char *, int );
+
+typedef struct
+{
+	int count;
+	double sx2;
+	double sy2;
+	double correlation;
+	double position;
+} correlation_results;
+
+
+static void calcCorrelation(char *, int,correlation_results  *);
 static void testEndian();
+
 
 int main() {
   long loops;
@@ -20,6 +32,11 @@ int main() {
   unsigned int val;
   int dir;
   snd_pcm_uframes_t frames;
+  correlation_results corr_results;
+  double position = 0;
+  double varianceSum = 0;
+  char output[100];
+  int len;
   char *buffer;
 
   testEndian();
@@ -81,7 +98,7 @@ int main() {
   /* We want to loop for 1 seconds */
   snd_pcm_hw_params_get_period_time(params,
                                          &val, &dir);
-  loops = 1000000 / val;
+  loops = 100000 / val;
 
   while (loops > 0) {
     loops--;
@@ -98,9 +115,18 @@ int main() {
       fprintf(stderr, "short read, read %d frames\n", rc);
     }
 
-    calcCorrelation(buffer, rc);
+    calcCorrelation(buffer, rc, &corr_results);
+    position = position + corr_results.position * corr_results.sy2 * corr_results.correlation;
+    varianceSum = varianceSum + corr_results.sy2 * corr_results.correlation;
 
   }
+
+
+  len = sprintf(output, "%f\n",position/varianceSum);
+  write(1, output, len);
+
+//  len = sprintf(output, "----------------\n");
+//  write(1, output, len);
 
   snd_pcm_drain(handle);
   snd_pcm_close(handle);
@@ -114,7 +140,7 @@ int32_t getBufferVal(char *src, int offset, int channel, int channels)
 	return ((int32_t *)src)[(offset * channels) + channel];
 }
 
-void calcCorrelation(char *src, int size)
+void calcCorrelation(char *src, int size, correlation_results  *corr_results)
 {
 	int i;
 	int j;
@@ -131,6 +157,8 @@ void calcCorrelation(char *src, int size)
 	int offset = 0;
 
 	int count = size - 2 * JITTER_RANGE;
+
+	corr_results->count = count;
 
 	if (size - 3 * JITTER_RANGE < 0)
 	{
@@ -162,14 +190,12 @@ void calcCorrelation(char *src, int size)
 		{
 			maxCorr = corr;
 			offset = i - JITTER_RANGE;
+			corr_results->correlation = maxCorr;
+			corr_results->position = offset;
+			corr_results->sx2 = sumx2/count - (sumx/count) * (sumx/count);
+			corr_results->sy2 = sumy2/count - (sumy/count) * (sumy/count);
 		}
 	}
-
-	len = sprintf(output, "%d, %f\n",offset,maxCorr);
-	write(1, output, len);
-
-	len = sprintf(output, "----------------\n");
-	write(1, output, len);
 
 }
 
