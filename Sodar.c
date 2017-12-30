@@ -54,7 +54,7 @@ int main()
 
   int frames = BUFFSIZE;
 
-  if (!atexit(runAtExit))
+  if (atexit(runAtExit))
   {
 
 	  fprintf(stderr, "Unable to setup atexit function");
@@ -71,6 +71,10 @@ int main()
   ignore_count = IGNORE_SECONDS/val;
 
   k = 0;
+
+  size = frames * 4; /* 2 bytes/sample, 2 channels */
+
+  buffer = (char *) malloc(size);
 
   while (loops > 0)
   {
@@ -97,7 +101,6 @@ int main()
     		if (rc != (int)frames)
     		{
     			fprintf(stderr, "short read, read %d frames\n", rc);
-
     		}
     		else
     		{
@@ -115,7 +118,8 @@ int main()
 
   snd_pcm_drain(handle);
   snd_pcm_close(handle);
-  free(buffer);
+
+  // free(buffer);
 
   return 0;
 }
