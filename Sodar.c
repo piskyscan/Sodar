@@ -109,8 +109,8 @@ int main()
     			{
     				raw1[i] = (double)getBufferVal(buffer,i,0,2);
     				raw2[i] = (double)getBufferVal(buffer,i,1,2);
-    				estimatePhaseShiftRaw(raw1, raw2,frames, fftHnd);
     			}
+				estimatePhaseShiftRaw(raw1, raw2,frames, fftHnd);
     		}
     	}
     }

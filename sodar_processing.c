@@ -25,6 +25,7 @@ void estimatePhaseShift(double *re1, double *im1, double *re2, double *im2, int 
 	double phaseSum = 0;
 	double weightSum = 0;
 	double weight = 0;
+	double re1val, re2val, im1val, im2val;
 
 	for (i = 1;i < N;i++)
 	{
@@ -42,8 +43,15 @@ void estimatePhaseShift(double *re1, double *im1, double *re2, double *im2, int 
 		}
 		phaseShift[i] = phaseDiff;
 
-		abs1[i] = sqrt(re1[i]*re1[i] + im1[i]*im1[i]);
-		abs2[i] = sqrt(re2[i]*re2[i] + im2[i]*im2[i]);
+		re1val = re1[i];
+		re2val = re2[i];
+
+		im1val = im1[i];
+		im2val = im2[i];
+
+
+		abs1[i] = sqrt(re1val*re1val + im1val * im1val);
+		abs2[i] = sqrt(re2val*re2val + im2val * im2val);
 
 		weight = abs1[i]*abs2[i];
 
