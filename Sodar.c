@@ -7,15 +7,15 @@
 #include <alsa/asoundlib.h>
 #include <fftw3.h>
 #include "sodar_fft.h"
+#include "Sodar.h"
 
-#define JITTER_RANGE 10  // range to check for correlation in.  -10 to +10 samples.
-#define IGNORE_SECONDS 0.3  // Microphone take time to warm up.
-#define BUFFSIZE 4096
+//#define JITTER_RANGE 10  // range to check for correlation in.  -10 to +10 samples.
+//#define IGNORE_SECONDS 0.3  // Microphone take time to warm up.
+//#define BUFFSIZE 4096
 
-snd_pcm_t *initialiseSoundCard(int hertz, int frames);
+snd_pcm_t *initialiseSoundCard(int hertz, int frames, char *device);
 extern int32_t getBufferVal(char *src, int offset, int channel, int channels);
 extern void estimatePhaseShiftRaw(double *data1, double *data2, int N,FftHnd *fftHnd);
-
 
 FftHnd *fftHnd = NULL;
 
@@ -29,7 +29,7 @@ void runAtExit(void)
 
 
 
-int main()
+int main_process(struct arguments *args)
 {
   long loops;
   int rc;
@@ -46,13 +46,16 @@ int main()
   int countSum = 0;
   char temp[8];
   snd_pcm_t *handle;
-  int hertz = 44000; // just about maximum.
+  int hertz;
   int i;
 
-  double raw1[BUFFSIZE];
-  double raw2[BUFFSIZE];
+  double raw1[args->frames];
+  double raw2[args->frames];
 
-  int frames = BUFFSIZE;
+
+  int frames = args->frames;
+
+  hertz = args->hertz;
 
   if (atexit(runAtExit))
   {
@@ -61,14 +64,13 @@ int main()
 	    exit(1);
   }
 
-  handle = initialiseSoundCard(hertz,frames);
+  handle = initialiseSoundCard(args->hertz,args->frames, args->device);
 
-  FftHnd *fftHnd = initialiseFFT(BUFFSIZE);
+  FftHnd *fftHnd = initialiseFFT(args->frames);
 
+  loops = (args->time * hertz)/args->frames;
 
-  loops = 100000 / hertz;
-
-  ignore_count = IGNORE_SECONDS/val;
+  ignore_count = args->ignore/val;
 
   k = 0;
 
@@ -76,7 +78,7 @@ int main()
 
   buffer = (char *) malloc(size);
 
-  while (loops > 0)
+  while (loops > 0 || args->time == 0)
   {
     loops--;k++;
 
@@ -104,6 +106,7 @@ int main()
     		}
     		else
     		{
+    			if (k > ignore_count)
     			// we have a buffer to process
     			for (i = 0;i < frames;i++)
     			{
@@ -125,9 +128,7 @@ int main()
 }
 
 
-
-
-snd_pcm_t *initialiseSoundCard(int hertz, int tframes)
+snd_pcm_t *initialiseSoundCard(int hertz, int tframes, char *device)
 {
 	  int rc;
 	  unsigned int val;
@@ -142,7 +143,7 @@ snd_pcm_t *initialiseSoundCard(int hertz, int tframes)
 	  frames = tframes;
 
 	  /* Open PCM device for recording (capture). */
-	  rc = snd_pcm_open(&handle, "default",
+	  rc = snd_pcm_open(&handle, device,
 	                    SND_PCM_STREAM_CAPTURE, 0);
 	  if (rc < 0) {
 	    fprintf(stderr,
@@ -191,8 +192,6 @@ snd_pcm_t *initialiseSoundCard(int hertz, int tframes)
 	    exit(1);
 	  }
 
-
-	  /* 44000 bits per second (max) */
 	  val = hertz;
 	  rc = snd_pcm_hw_params_set_rate_near(handle, params,
 	                                  &val, &dir);

@@ -59,7 +59,7 @@ void estimatePhaseShift(double *re1, double *im1, double *re2, double *im2, int 
 		weightSum += weight;
 	}
 
-	printf("phase diff %f, weight %f \n", phaseSum/weightSum * 4096,weightSum);
+	printf("phase diff %f, weight %f \n", phaseSum/weightSum * 4096,weightSum/N);
 }
 
 void estimatePhaseShiftRaw(double *data1, double *data2, int N,FftHnd *fftHnd)
