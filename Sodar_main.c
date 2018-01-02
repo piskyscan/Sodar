@@ -5,7 +5,6 @@ Command line processing for Sodar
 #include <stdlib.h>
 #include <error.h>
 #include <argp.h>
-#include <argz.h>
 #include "Sodar.h"
 
 const char *argp_program_version = "Sodar 1.0";
@@ -17,7 +16,7 @@ static char doc[] =
 		"Sodar -- program to try to measure sound direction\nUses phase difference between two microphones to estimate direction";
 
 /* A description of the arguments we accept. */
-static char args_doc[] = "";
+static char args_doc[] = "[ARG1]";
 
 //"-d device -h hertz -f frame_size -w width_apart -t time_to_run -i time_to_ignore -c correlation";
 
@@ -27,6 +26,8 @@ static char args_doc[] = "";
 /* The options we understand. */
 static struct argp_option options[] =
 {
+		{"output",   'o', "FILE",  0,"Output to FILE instead of standard output" },
+		{0,0,0,0, "The following options should be grouped together:" },
 		{"device",   'd', "DEVICE", OPTION_ARG_OPTIONAL,"Device to use (default)"},
 		{"hertz",   'h', "HERTZ", OPTION_ARG_OPTIONAL,"Hertz to run at (44000)"},
 		{"frames",   'f', "FRAMES", OPTION_ARG_OPTIONAL, "Frane Size (default 4096)"},
@@ -34,7 +35,6 @@ static struct argp_option options[] =
 		{"time",   't', "TIME", OPTION_ARG_OPTIONAL,"Time to run for (forever)"},
 		{"ignore",   'i', "IGNORE", OPTION_ARG_OPTIONAL,"Initial time to ignore (0.3s)"},
 		{"correlation",   'c', "CORRELATION", OPTION_ARG_OPTIONAL,"Minimum correlation to report (0.8)"},
-		{"output",   'o', "FILE",  0,"Output to FILE instead of standard output" },
 		{ 0 }
 };
 
@@ -86,7 +86,6 @@ parse_opt (int key, char *arg, struct argp_state *state)
 	case ARGP_KEY_NO_ARGS:
 		// no args is fine
 		// argp_usage (state);
-		break;
 
 	case ARGP_KEY_ARG:
 		/* Here we know that state->arg_num == 0, since we
@@ -110,14 +109,13 @@ parse_opt (int key, char *arg, struct argp_state *state)
 		break;
 
 	default:
-		argp_usage (state);
 		return ARGP_ERR_UNKNOWN;
 	}
 	return 0;
 }
 
 /* Our argp parser. */
-static struct argp argp = { options, parse_opt, 0 /* args_doc */,0 /* doc*/ };
+static struct argp argp = { options, parse_opt,  args_doc , doc };
 
 int main (int argc, char **argv)
 {
@@ -138,13 +136,11 @@ int main (int argc, char **argv)
 	arguments.time = 0.3;
 	double ignore;
 
-
-
 	/* Parse our arguments; every option seen by parse_opt will be
      reflected in arguments. */
 	if (argp_parse (&argp, argc, argv, 0, 0, &arguments))
 	{
-		exit(1);
+	//	exit(1);
 	}
 
 	if (arguments.abort)
