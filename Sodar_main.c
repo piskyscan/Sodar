@@ -15,8 +15,8 @@ const char *argp_program_bug_address =
 static char doc[] =
 		"Sodar -- program to try to measure sound direction\nUses phase difference between two microphones to estimate direction";
 
-/* A description of the arguments we accept. */
-static char args_doc[] = "[ARG1]";
+/* A description of the arguments we accept. (actually no args)*/
+static char args_doc[] = "";
 
 //"-d device -h hertz -f frame_size -w width_apart -t time_to_run -i time_to_ignore -c correlation";
 
@@ -26,7 +26,7 @@ static char args_doc[] = "[ARG1]";
 /* The options we understand. */
 static struct argp_option options[] =
 {
-		{"output",   'o', "FILE",  0,"Output to FILE instead of standard output" },
+//		{"output",   'o', "FILE",  0,"Output to FILE instead of standard output" },
 		{0,0,0,0, "The following options should be grouped together:" },
 		{"device",   'd', "DEVICE", OPTION_ARG_OPTIONAL,"Device to use (default)"},
 		{"hertz",   'h', "HERTZ", OPTION_ARG_OPTIONAL,"Hertz to run at (44000)"},
@@ -74,9 +74,14 @@ parse_opt (int key, char *arg, struct argp_state *state)
 		arguments->ignore = arg ? atof(arg) : 0.3;
 		break;
 
+	case 't':
+		arguments->time = arg ? atof(arg) : 0.0;
+		break;
+
 	case 'c':
 		arguments->correlation = arg ? atof(arg) : 0.8;
 		break;
+
 
 
 	case OPT_ABORT:
@@ -133,8 +138,8 @@ int main (int argc, char **argv)
 	arguments.frames = 4096;
 	arguments.correlation = 0.8;
 	arguments.width = 50;
-	arguments.time = 0.3;
-	double ignore;
+	arguments.time = 0.0;
+	arguments.ignore = 0.3;
 
 	/* Parse our arguments; every option seen by parse_opt will be
      reflected in arguments. */
@@ -147,7 +152,6 @@ int main (int argc, char **argv)
 		error (10, 0, "ABORTED");
 
 	main_process(&arguments);
-
 
 	exit (0);
 }

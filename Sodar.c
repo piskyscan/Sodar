@@ -21,13 +21,8 @@ FftHnd *fftHnd = NULL;
 
 void runAtExit(void)
 {
-	if (fftHnd != NULL)
-	{
-		terminateFFT(fftHnd);
-	}
+
 }
-
-
 
 int main_process(struct arguments *args)
 {
@@ -121,6 +116,8 @@ int main_process(struct arguments *args)
 
   snd_pcm_drain(handle);
   snd_pcm_close(handle);
+
+  terminateFFT(fftHnd);
 
   // free(buffer);
 
