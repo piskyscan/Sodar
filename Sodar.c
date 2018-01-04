@@ -108,7 +108,7 @@ int main_process(struct arguments *args)
     				raw1[i] = (double)getBufferVal(buffer,i,0,2);
     				raw2[i] = (double)getBufferVal(buffer,i,1,2);
     			}
-				estimatePhaseShiftRaw(raw1, raw2,frames, fftHnd);
+				estimatePhaseShiftRaw2(raw1, raw2,frames);
     		}
     	}
     }

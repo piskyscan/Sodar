@@ -20,6 +20,7 @@ extern double testData[40960][2];
 static void testEndian();
 
 extern int32_t getBufferVal(char *src, int offset, int channel, int channels);
+extern void estimatePhaseShift3(double *raw1, double *raw2, int n);
 
 int testDatacolumn = sizeof(testData[0])/sizeof(testData[0][0]);
 int testDatarow = sizeof(testData) / sizeof(testData[0]);
@@ -38,6 +39,8 @@ int main()
 	double im1[BUFFSIZE];
 	double im2[BUFFSIZE];
 
+	double raw[2][BUFFSIZE];
+
 	testEndian();
 
 	FftHnd *fftHnd = initialiseFFT(BUFFSIZE);
@@ -48,6 +51,7 @@ int main()
 	for (i = 0; i < BUFFSIZE;i++)
 	{
 		fftHnd->input_buffer[i] = testData[i+j*BUFFSIZE][0];
+		raw[0][i] = fftHnd->input_buffer[i];
 	}
 
 	FFT_c(fftHnd);
@@ -62,6 +66,7 @@ int main()
 	for (i = 0; i < BUFFSIZE;i++)
 	{
 		fftHnd->input_buffer[i] = testData[i+j*BUFFSIZE][1];
+		raw[1][i] = fftHnd->input_buffer[i];
 	}
 
 	FFT_c(fftHnd);
@@ -72,11 +77,13 @@ int main()
 		im2[i] = fftHnd->output_buffer[i][1];
 	}
 
-	estimatePhaseShift2(re1, im1,re2,im2, BUFFSIZE/4);
+	estimatePhaseShift3(&raw[0][0],&raw[1][0], BUFFSIZE);
+	// estimatePhaseShift2(re1, im1,re2,im2, BUFFSIZE/4);
 	}
 
 	terminateFFT(fftHnd);
 }
+
 
 
 char test[] = {0x00,0xC4,0xFF,0xFF,0x00,0x88,0xFF,0xFF};

@@ -62,6 +62,12 @@ void estimatePhaseShift(double *re1, double *im1, double *re2, double *im2, int 
 	printf("phase diff %f, weight %f \n", phaseSum/weightSum * 4096,weightSum/N);
 }
 
+void estimatePhaseShiftRaw2(double *data1, double *data2, int N)
+{
+	estimatePhaseShift3(data1, data2, N);
+}
+
+
 void estimatePhaseShiftRaw(double *data1, double *data2, int N,FftHnd *fftHnd)
 {
 	int i;
@@ -171,6 +177,63 @@ void estimatePhaseShift2(double *re1, double *im1, double *re2, double *im2, int
 	printf("phase diff, %f, corr, %f, weight %f \n", 4096*(xysum/weightSum)/(isum2/weightSum),corr, weightSum/N);
 }
 
+
+double correlation(double *ptr1, double *ptr2, int n)
+{
+int i;
+double sumx = 0;
+double sumx2 = 0;
+double sumy = 0;
+double sumy2 = 0;
+double sumxy = 0;
+double sx2, sy2, sxy;
+
+for (i = 0;i<n;i++)
+{
+sumx += ptr1[i];
+sumx2 += ptr1[i]*ptr1[i];
+sumy += ptr2[i];
+sumy2 += ptr2[i]*ptr2[i];
+sumxy += ptr1[i]*ptr2[i];
+}
+
+sx2 = sumx2/n - (sumx/i)*(sumx/i);
+
+sy2 = sumy2/n - (sumy/i)*(sumy/i);
+
+sxy = sumxy/n - (sumx/i)*(sumy/i);
+
+return sxy/sqrt(sx2*sy2);
+
+}
+
+void estimatePhaseShift3(double *raw1, double *raw2, int n)
+{
+	int i;
+	int j;
+	int size = 40;
+	double corr;
+	double maxCorrelation = -1;
+	int index = 0;
+
+	int nToUse = n - 2 * size;
+
+	for (i = -size;i<size;i++)
+	{
+		corr = correlation(&raw1[size],&raw2[size + i],nToUse);
+		if (corr >maxCorrelation )
+		{
+			maxCorrelation = corr;
+			index = i;
+		}
+	}
+
+	if (maxCorrelation > 0.8)
+	{
+		printf("Offset %d, value %f\n",index,maxCorrelation );
+	}
+
+}
 
 
 
