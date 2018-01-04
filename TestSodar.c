@@ -7,9 +7,12 @@
 
 #include <stdio.h>
 #include <stdint.h>
-
+#include <math.h>
 #include <fftw3.h>
+#include "Sodar.h"
 #include "sodar_fft.h"
+
+
 
 #define BUFFSIZE 4096
 
@@ -21,7 +24,9 @@ extern int32_t getBufferVal(char *src, int offset, int channel, int channels);
 int testDatacolumn = sizeof(testData[0])/sizeof(testData[0][0]);
 int testDatarow = sizeof(testData) / sizeof(testData[0]);
 
-extern void estimatePhaseShift(double *re1, double *im1, double *re2, double *im2, int N);
+
+
+
 
 int main()
 {
@@ -67,7 +72,7 @@ int main()
 		im2[i] = fftHnd->output_buffer[i][1];
 	}
 
-	estimatePhaseShift(re1, im1,re2,im2, BUFFSIZE/4);
+	estimatePhaseShift2(re1, im1,re2,im2, BUFFSIZE/4);
 	}
 
 	terminateFFT(fftHnd);

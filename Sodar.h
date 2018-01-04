@@ -27,5 +27,7 @@ struct arguments
 
 extern int main_process(struct arguments *args);
 
+extern void estimatePhaseShift(double *re1, double *im1, double *re2, double *im2, int N);
+extern void estimatePhaseShift2(double *re1, double *im1, double *re2, double *im2, int N);
 
 #endif /* SODAR_H_ */
