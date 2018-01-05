@@ -30,8 +30,8 @@ static struct argp_option options[] =
 		{0,0,0,0, "The following options should be grouped together:" },
 		{"device",   'd', "DEVICE", OPTION_ARG_OPTIONAL,"Device to use (default)"},
 		{"hertz",   'h', "HERTZ", OPTION_ARG_OPTIONAL,"Hertz to run at (44000)"},
-		{"frames",   'f', "FRAMES", OPTION_ARG_OPTIONAL, "Frane Size (default 4096)"},
-		{"width",   'w', "WIDTH", OPTION_ARG_OPTIONAL, "Speaker distance apart"},
+		{"frames",   'f', "FRAMES", OPTION_ARG_OPTIONAL, "Frane Size (default 1024)"},
+		{"width",   'w', "WIDTH", OPTION_ARG_OPTIONAL, "Speaker distance apart (70mm)"},
 		{"time",   't', "TIME", OPTION_ARG_OPTIONAL,"Time to run for (forever)"},
 		{"ignore",   'i', "IGNORE", OPTION_ARG_OPTIONAL,"Initial time to ignore (0.3s)"},
 		{"correlation",   'c', "CORRELATION", OPTION_ARG_OPTIONAL,"Minimum correlation to report (0.8)"},
@@ -63,11 +63,11 @@ parse_opt (int key, char *arg, struct argp_state *state)
 		break;
 
 	case 'f':
-		arguments->frames = arg ? atoi(arg) : 4096;
+		arguments->frames = arg ? atoi(arg) : 1024;
 		break;
 
 	case 'w':
-		arguments->width = arg ? atoi(arg) : 50;
+		arguments->width = arg ? atoi(arg) : 70;
 		break;
 
 	case 'i':
@@ -79,7 +79,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
 		break;
 
 	case 'c':
-		arguments->correlation = arg ? atof(arg) : 0.8;
+		arguments->correlation = arg ? atof(arg) : 0.95;
 		break;
 
 
@@ -135,9 +135,9 @@ int main (int argc, char **argv)
 	arguments.abort = 0;
 	arguments.device = "default";
 	arguments.hertz = 44000;
-	arguments.frames = 4096;
-	arguments.correlation = 0.8;
-	arguments.width = 50;
+	arguments.frames = 1024;
+	arguments.correlation = 0.95;
+	arguments.width = 70;
 	arguments.time = 0.0;
 	arguments.ignore = 0.3;
 

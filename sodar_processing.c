@@ -64,7 +64,8 @@ void estimatePhaseShift(double *re1, double *im1, double *re2, double *im2, int 
 
 void estimatePhaseShiftRaw2(double *data1, double *data2, int N)
 {
-	estimatePhaseShift3(data1, data2, N);
+	Results results;
+	estimatePhaseShift3(data1, data2, N, &results);
 }
 
 
@@ -207,7 +208,7 @@ return sxy/sqrt(sx2*sy2);
 
 }
 
-void estimatePhaseShift3(double *raw1, double *raw2, int n)
+void estimatePhaseShift3(double *raw1, double *raw2, int n,Results* resPtr)
 {
 	int i;
 	int j;
@@ -228,10 +229,10 @@ void estimatePhaseShift3(double *raw1, double *raw2, int n)
 		}
 	}
 
-	if (maxCorrelation > 0.8)
-	{
-		printf("Offset %d, value %f\n",index,maxCorrelation );
-	}
+	resPtr->n = n;
+	resPtr->correlation = maxCorrelation;
+	resPtr->offset = index;
+
 
 }
 

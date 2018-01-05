@@ -43,6 +43,9 @@ int main_process(struct arguments *args)
   snd_pcm_t *handle;
   int hertz;
   int i;
+  Results results;
+  double sintheta;
+  double theta;
 
   double raw1[args->frames];
   double raw2[args->frames];
@@ -108,7 +111,26 @@ int main_process(struct arguments *args)
     				raw1[i] = (double)getBufferVal(buffer,i,0,2);
     				raw2[i] = (double)getBufferVal(buffer,i,1,2);
     			}
-				estimatePhaseShiftRaw2(raw1, raw2,frames);
+    			estimatePhaseShift3(raw1, raw2,frames, &results);
+
+				if (results.correlation > args->correlation)
+				{
+					sintheta = 1000.0*(results.offset * SPEED_OF_SOUND_MS/(double)args->hertz)/(double)args->width;
+
+					if (sintheta >= 1)
+					{
+						theta = 90.0;
+					} else
+					if (sintheta <= -1)
+					{
+						theta = -90.0;
+					} else
+					{
+						theta = asin(sintheta) * 360.0/(2.0*M_PI);
+					}
+
+					printf("Angle %f, Correlation %f\n",theta, results.correlation);
+				}
     		}
     	}
     }

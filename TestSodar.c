@@ -20,7 +20,6 @@ extern double testData[40960][2];
 static void testEndian();
 
 extern int32_t getBufferVal(char *src, int offset, int channel, int channels);
-extern void estimatePhaseShift3(double *raw1, double *raw2, int n);
 
 int testDatacolumn = sizeof(testData[0])/sizeof(testData[0][0]);
 int testDatarow = sizeof(testData) / sizeof(testData[0]);
@@ -40,6 +39,9 @@ int main()
 	double im2[BUFFSIZE];
 
 	double raw[2][BUFFSIZE];
+	Results results;
+	double sintheta;
+	double theta;
 
 	testEndian();
 
@@ -77,7 +79,28 @@ int main()
 		im2[i] = fftHnd->output_buffer[i][1];
 	}
 
-	estimatePhaseShift3(&raw[0][0],&raw[1][0], BUFFSIZE);
+	estimatePhaseShift3(&raw[0][0],&raw[1][0], BUFFSIZE, &results);
+
+	if (results.correlation > 0.95)
+	{
+		sintheta = 1000*(results.offset * SPEED_OF_SOUND_MS/44000.0)/70.0;
+
+		if (sintheta >= 1)
+		{
+			theta = 90.0;
+		} else
+			if (sintheta <= -1)
+			{
+				theta = -90.0;
+			} else
+			{
+				theta = asin(sintheta) * 360.0/(2.0*M_PI);
+			}
+
+		printf("Angle %f, Correlation %f\n",theta, results.correlation);
+	}
+
+
 	// estimatePhaseShift2(re1, im1,re2,im2, BUFFSIZE/4);
 	}
 
