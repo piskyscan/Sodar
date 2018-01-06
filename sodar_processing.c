@@ -179,32 +179,40 @@ void estimatePhaseShift2(double *re1, double *im1, double *re2, double *im2, int
 }
 
 
-double correlation(double *ptr1, double *ptr2, int n)
+double correlation(double *ptr1, double *ptr2, int n,CorrResults* resPtr)
 {
-int i;
-double sumx = 0;
-double sumx2 = 0;
-double sumy = 0;
-double sumy2 = 0;
-double sumxy = 0;
-double sx2, sy2, sxy;
+	int i;
+	double sumx = 0;
+	double sumx2 = 0;
+	double sumy = 0;
+	double sumy2 = 0;
+	double sumxy = 0;
+	double sx2, sy2, sxy;
+	double corr;
 
-for (i = 0;i<n;i++)
-{
-sumx += ptr1[i];
-sumx2 += ptr1[i]*ptr1[i];
-sumy += ptr2[i];
-sumy2 += ptr2[i]*ptr2[i];
-sumxy += ptr1[i]*ptr2[i];
-}
+	for (i = 0;i<n;i++)
+	{
+		sumx += ptr1[i];
+		sumx2 += ptr1[i]*ptr1[i];
+		sumy += ptr2[i];
+		sumy2 += ptr2[i]*ptr2[i];
+		sumxy += ptr1[i]*ptr2[i];
+	}
 
-sx2 = sumx2/n - (sumx/i)*(sumx/i);
+	sx2 = sumx2/n - (sumx/i)*(sumx/i);
 
-sy2 = sumy2/n - (sumy/i)*(sumy/i);
+	sy2 = sumy2/n - (sumy/i)*(sumy/i);
 
-sxy = sumxy/n - (sumx/i)*(sumy/i);
+	sxy = sumxy/n - (sumx/i)*(sumy/i);
 
-return sxy/sqrt(sx2*sy2);
+	corr =  sxy/sqrt(sx2*sy2);
+
+	if (resPtr != NULL)
+	{
+		resPtr->correlation = corr;
+		resPtr->sx = sqrt(sx2);
+		resPtr->sy = sqrt(sy2);
+	}
 
 }
 
@@ -216,18 +224,23 @@ void estimatePhaseShift3(double *raw1, double *raw2, int n,Results* resPtr)
 	double corr;
 	double maxCorrelation = -1;
 	int index = 0;
+	CorrResults corrResults;
+	// double correlations[n - 2 * size];
 
 	int nToUse = n - 2 * size;
 
 	for (i = -size;i<size;i++)
 	{
-		corr = correlation(&raw1[size],&raw2[size + i],nToUse);
+		corr = correlation(&raw1[size],&raw2[size + i],nToUse,&corrResults);
+		printf("%f,",corr);
+		// correlations[i+size] = corr;
 		if (corr >maxCorrelation )
 		{
 			maxCorrelation = corr;
 			index = i;
 		}
 	}
+	printf("\n,");
 
 	resPtr->n = n;
 	resPtr->correlation = maxCorrelation;

@@ -14,7 +14,7 @@
 
 
 
-#define BUFFSIZE 4096
+#define BUFFSIZE 2048
 
 extern double testData[40960][2];
 static void testEndian();
@@ -23,8 +23,6 @@ extern int32_t getBufferVal(char *src, int offset, int channel, int channels);
 
 int testDatacolumn = sizeof(testData[0])/sizeof(testData[0][0]);
 int testDatarow = sizeof(testData) / sizeof(testData[0]);
-
-
 
 
 
@@ -97,7 +95,7 @@ int main()
 				theta = asin(sintheta) * 360.0/(2.0*M_PI);
 			}
 
-		printf("Angle %f, Correlation %f\n",theta, results.correlation);
+//		printf("Angle %f, Correlation %f\n",theta, results.correlation);
 	}
 
 

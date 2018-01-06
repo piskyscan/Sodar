@@ -47,6 +47,8 @@ int main_process(struct arguments *args)
   double sintheta;
   double theta;
 
+  int buffers = ((double)args->width /(SPEED_OF_SOUND_MS*1000.0/args->hertz)+1);  // work out how many buffers we need (one side).
+
   double raw1[args->frames];
   double raw2[args->frames];
 
@@ -129,7 +131,7 @@ int main_process(struct arguments *args)
 						theta = asin(sintheta) * 360.0/(2.0*M_PI);
 					}
 
-					printf("Angle %f, Correlation %f\n",theta, results.correlation);
+//					printf("Angle %f, Correlation %f\n",theta, results.correlation);
 				}
     		}
     	}
