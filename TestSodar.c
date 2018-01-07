@@ -47,59 +47,59 @@ int main()
 
 	for (j = 0;j < testDatarow/BUFFSIZE;j++)
 	{
-	// Do first channel
-	for (i = 0; i < BUFFSIZE;i++)
-	{
-		fftHnd->input_buffer[i] = testData[i+j*BUFFSIZE][0];
-		raw[0][i] = fftHnd->input_buffer[i];
-	}
-
-	FFT_c(fftHnd);
-
-	for (i = 0; i < BUFFSIZE;i++)
-	{
-		re1[i] = fftHnd->output_buffer[i][0];
-		im1[i] = fftHnd->output_buffer[i][1];
-	}
-
-	// next do other channel.
-	for (i = 0; i < BUFFSIZE;i++)
-	{
-		fftHnd->input_buffer[i] = testData[i+j*BUFFSIZE][1];
-		raw[1][i] = fftHnd->input_buffer[i];
-	}
-
-	FFT_c(fftHnd);
-
-	for (i = 0; i < BUFFSIZE;i++)
-	{
-		re2[i] = fftHnd->output_buffer[i][0];
-		im2[i] = fftHnd->output_buffer[i][1];
-	}
-
-	estimatePhaseShift3(&raw[0][0],&raw[1][0], BUFFSIZE, &results);
-
-	if (results.correlation > 0.95)
-	{
-		sintheta = 1000*(results.offset * SPEED_OF_SOUND_MS/44000.0)/70.0;
-
-		if (sintheta >= 1)
+		// Do first channel
+		for (i = 0; i < BUFFSIZE;i++)
 		{
-			theta = 90.0;
-		} else
-			if (sintheta <= -1)
+			fftHnd->input_buffer[i] = testData[i+j*BUFFSIZE][0];
+			raw[0][i] = fftHnd->input_buffer[i];
+		}
+
+		FFT_c(fftHnd);
+
+		for (i = 0; i < BUFFSIZE;i++)
+		{
+			re1[i] = fftHnd->output_buffer[i][0];
+			im1[i] = fftHnd->output_buffer[i][1];
+		}
+
+		// next do other channel.
+		for (i = 0; i < BUFFSIZE;i++)
+		{
+			fftHnd->input_buffer[i] = testData[i+j*BUFFSIZE][1];
+			raw[1][i] = fftHnd->input_buffer[i];
+		}
+
+		FFT_c(fftHnd);
+
+		for (i = 0; i < BUFFSIZE;i++)
+		{
+			re2[i] = fftHnd->output_buffer[i][0];
+			im2[i] = fftHnd->output_buffer[i][1];
+		}
+
+		estimatePhaseShift3(&raw[0][0],&raw[1][0], BUFFSIZE, &results);
+
+		printf("Index %d, Correlation %f, CorrelationStd %f, Std %f\n",results.offset, results.correlation, results.correlationStd,results.sx);
+
+		if (results.correlation > 0.95 && results.correlationStd > 0.1)
+		{
+	//		sintheta = 1000*(results.offset * SPEED_OF_SOUND_MS/44000.0)/70.0;
+
+			if (sintheta >= 1)
 			{
-				theta = -90.0;
+				theta = 90.0;
 			} else
-			{
-				theta = asin(sintheta) * 360.0/(2.0*M_PI);
-			}
+				if (sintheta <= -1)
+				{
+					theta = -90.0;
+				} else
+				{
+					theta = asin(sintheta) * 360.0/(2.0*M_PI);
+				}
 
-//		printf("Angle %f, Correlation %f\n",theta, results.correlation);
-	}
+		}
 
 
-	// estimatePhaseShift2(re1, im1,re2,im2, BUFFSIZE/4);
 	}
 
 	terminateFFT(fftHnd);

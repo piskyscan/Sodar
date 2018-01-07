@@ -129,6 +129,7 @@ int main_process(struct arguments *args)
 					} else
 					{
 						theta = asin(sintheta) * 360.0/(2.0*M_PI);
+						printf("Index %d, Correlation %f, CorrelationStd %f, Std %f\n",results.offset, results.correlation, results.correlationStd,results.sx);
 					}
 
 //					printf("Angle %f, Correlation %f\n",theta, results.correlation);

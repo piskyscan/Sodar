@@ -32,7 +32,7 @@ typedef struct
 	int n;
 	int offset;
 	double sx;
-
+	double correlationStd;
 } Results;
 
 typedef struct

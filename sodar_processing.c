@@ -214,6 +214,8 @@ double correlation(double *ptr1, double *ptr2, int n,CorrResults* resPtr)
 		resPtr->sy = sqrt(sy2);
 	}
 
+	return corr;
+
 }
 
 void estimatePhaseShift3(double *raw1, double *raw2, int n,Results* resPtr)
@@ -224,6 +226,9 @@ void estimatePhaseShift3(double *raw1, double *raw2, int n,Results* resPtr)
 	double corr;
 	double maxCorrelation = -1;
 	int index = 0;
+	double sumCorr = 0;
+	double sumCorr2 = 0;
+	double meanCorr;
 	CorrResults corrResults;
 	// double correlations[n - 2 * size];
 
@@ -232,20 +237,23 @@ void estimatePhaseShift3(double *raw1, double *raw2, int n,Results* resPtr)
 	for (i = -size;i<size;i++)
 	{
 		corr = correlation(&raw1[size],&raw2[size + i],nToUse,&corrResults);
-		printf("%f,",corr);
-		// correlations[i+size] = corr;
+		sumCorr += corr;
+		sumCorr2 += corr * corr;
+
 		if (corr >maxCorrelation )
 		{
 			maxCorrelation = corr;
 			index = i;
 		}
 	}
-	printf("\n,");
+
+	meanCorr = sumCorr/(2*size);
 
 	resPtr->n = n;
 	resPtr->correlation = maxCorrelation;
 	resPtr->offset = index;
-
+	resPtr->correlationStd = sqrt(sumCorr2/(2*size) -meanCorr*meanCorr );
+	resPtr->sx = corrResults.sx;
 
 }
 
