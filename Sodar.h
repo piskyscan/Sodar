@@ -24,6 +24,7 @@ struct arguments
     int width;
     double time;
     double ignore;
+    double minStd;
 };
 
 typedef struct

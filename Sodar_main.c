@@ -7,6 +7,16 @@ Command line processing for Sodar
 #include <argp.h>
 #include "Sodar.h"
 
+#define STR_HELPER(x) #x
+#define STR(x) STR_HELPER(x)
+
+#define DEFAULT_HERTZ 44000
+#define DEFAULT_FRAMES 2048
+#define DEFAULT_SPEAKER_DIST 70
+#define DEFAULT_IGNORE_TIME 0.3
+#define DEFAULT_MIN_CORRELATION 0.9
+#define DEFAULT_MIN_STD 0.2
+
 const char *argp_program_version = "Sodar 1.0";
 const char *argp_program_bug_address =
 		"<piskyscan@piskyscan.com>";
@@ -29,12 +39,13 @@ static struct argp_option options[] =
 //		{"output",   'o', "FILE",  0,"Output to FILE instead of standard output" },
 		{0,0,0,0, "The following options should be grouped together:" },
 		{"device",   'd', "DEVICE", OPTION_ARG_OPTIONAL,"Device to use (default)"},
-		{"hertz",   'h', "HERTZ", OPTION_ARG_OPTIONAL,"Hertz to run at (44000)"},
-		{"frames",   'f', "FRAMES", OPTION_ARG_OPTIONAL, "Frane Size (default 1024)"},
-		{"width",   'w', "WIDTH", OPTION_ARG_OPTIONAL, "Speaker distance apart (70mm)"},
+		{"hertz",   'h', "HERTZ", OPTION_ARG_OPTIONAL,"Hertz to run at (" STR(DEFAULT_HERTZ)")"},
+		{"frames",   'f', "FRAMES", OPTION_ARG_OPTIONAL, "Frane Size (default "STR(DEFAULT_FRAMES)")"},
+		{"width",   'w', "WIDTH", OPTION_ARG_OPTIONAL, "Speaker distance apart ("STR(DEFAULT_WIDTH)"mm)"},
 		{"time",   't', "TIME", OPTION_ARG_OPTIONAL,"Time to run for (forever)"},
-		{"ignore",   'i', "IGNORE", OPTION_ARG_OPTIONAL,"Initial time to ignore (0.3s)"},
-		{"correlation",   'c', "CORRELATION", OPTION_ARG_OPTIONAL,"Minimum correlation to report (0.8)"},
+		{"ignore",   'i', "IGNORE", OPTION_ARG_OPTIONAL,"Initial time to ignore ("STR(DEFAULT_IGNORE_TIME)"s)"},
+		{"correlation",   'c', "CORRELATION", OPTION_ARG_OPTIONAL,"Minimum correlation to report ("STR(DEFAULT_MIN_CORRELATION)")"},
+		{"minstd",   'm', "MINSTD", OPTION_ARG_OPTIONAL,"Minimum std of correlation to report ("STR(DEFAULT_MIN_STD)")"},
 		{ 0 }
 };
 
@@ -59,19 +70,19 @@ parse_opt (int key, char *arg, struct argp_state *state)
 		break;
 
 	case 'h':
-		arguments->hertz = arg ? atoi(arg) : 44000;
+		arguments->hertz = arg ? atoi(arg) : DEFAULT_HERTZ;
 		break;
 
 	case 'f':
-		arguments->frames = arg ? atoi(arg) : 1024;
+		arguments->frames = arg ? atoi(arg) : DEFAULT_FRAMES;
 		break;
 
 	case 'w':
-		arguments->width = arg ? atoi(arg) : 70;
+		arguments->width = arg ? atoi(arg) : DEFAULT_SPEAKER_DIST;
 		break;
 
 	case 'i':
-		arguments->ignore = arg ? atof(arg) : 0.3;
+		arguments->ignore = arg ? atof(arg) : DEFAULT_IGNORE_TIME;
 		break;
 
 	case 't':
@@ -79,9 +90,12 @@ parse_opt (int key, char *arg, struct argp_state *state)
 		break;
 
 	case 'c':
-		arguments->correlation = arg ? atof(arg) : 0.95;
+		arguments->correlation = arg ? atof(arg) : DEFAULT_MIN_CORRELATION;
 		break;
 
+	case 'm':
+		arguments->minStd = arg ? atof(arg) : 0.2;
+		break;
 
 
 	case OPT_ABORT:
@@ -140,6 +154,7 @@ int main (int argc, char **argv)
 	arguments.width = 70;
 	arguments.time = 0.0;
 	arguments.ignore = 0.3;
+	arguments.minStd = 0.2;
 
 	/* Parse our arguments; every option seen by parse_opt will be
      reflected in arguments. */

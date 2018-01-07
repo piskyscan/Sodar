@@ -115,7 +115,7 @@ int main_process(struct arguments *args)
     			}
     			estimatePhaseShift3(raw1, raw2,frames, &results);
 
-				if (results.correlation > args->correlation)
+				if (results.correlation > args->correlation && results.correlationStd > args->minStd)
 				{
 					sintheta = 1000.0*(results.offset * SPEED_OF_SOUND_MS/(double)args->hertz)/(double)args->width;
 
