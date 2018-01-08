@@ -38,6 +38,7 @@ int main_process(struct arguments *args)
   char *buffer;
   int ignore_count;
   int k;
+  int m;
   int countSum = 0;
   char temp[8];
   snd_pcm_t *handle;
@@ -130,8 +131,12 @@ int main_process(struct arguments *args)
 					{
 						theta = asin(sintheta) * 360.0/(2.0*M_PI);
 						printf("Index %d, Correlation %f, CorrelationStd %f, Std %f\n",results.offset, results.correlation, results.correlationStd,results.sx);
-					}
 
+						for (m = 0;m < frames;m++)
+						{
+							printf("%f, %f\n",raw1[m],raw2[m]);
+						}
+					}
 //					printf("Angle %f, Correlation %f\n",theta, results.correlation);
 				}
     		}
