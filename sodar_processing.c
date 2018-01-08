@@ -254,6 +254,7 @@ void estimatePhaseShift3(double *raw1, double *raw2, int n,Results* resPtr)
 	resPtr->offset = index;
 	resPtr->correlationStd = sqrt(sumCorr2/(2*size) -meanCorr*meanCorr );
 	resPtr->sx = corrResults.sx;
+	resPtr->sy = corrResults.sy;
 
 }
 
