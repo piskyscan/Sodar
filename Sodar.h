@@ -35,6 +35,7 @@ typedef struct
 	double sx;
 	double sy;
 	double correlationStd;
+	double bestFitIndex;
 } Results;
 
 typedef struct

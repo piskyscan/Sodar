@@ -230,7 +230,14 @@ void estimatePhaseShift3(double *raw1, double *raw2, int n,Results* resPtr)
 	double sumCorr2 = 0;
 	double meanCorr;
 	CorrResults corrResults;
+	double correlations[2*size];
+	double a,b,c;
+	int count = 2*size;
+
 	// double correlations[n - 2 * size];
+
+	double sumx = 0, sumy = 0, sumxy = 0, sumx2y = 0, sumx2,sumxx2,sumx22;
+	double s11, s12, s22, sy1, sy2;
 
 	int nToUse = n - 2 * size;
 
@@ -245,6 +252,7 @@ void estimatePhaseShift3(double *raw1, double *raw2, int n,Results* resPtr)
 			maxCorrelation = corr;
 			index = i;
 		}
+		correlations[i+size] = corr;
 	}
 
 	meanCorr = sumCorr/(2*size);
@@ -256,6 +264,36 @@ void estimatePhaseShift3(double *raw1, double *raw2, int n,Results* resPtr)
 	resPtr->sx = corrResults.sx;
 	resPtr->sy = corrResults.sy;
 
+	// now fit quadratic to correlations
+
+	for (i = 0; i < 2*size;i++)
+	{
+		sumx += i;
+		sumx2 += i*i;
+		sumxy += i * correlations[i];
+		sumxx2 += i*i*i;
+		sumy += correlations[i];
+		sumx22 += i*i*i*i;
+		sumx2y += i*i*correlations[i];
+//		printf("Corr, %d, %f\n", i,correlations[i]);
+	}
+
+	s11 = sumx2 - sumx * sumx/count;
+	s12 = sumxx2 - sumx * sumx2/count;
+	s22 = sumx22 -sumx2 *sumx2 /count;
+	sy1 = sumxy - sumx * sumy/count;
+	sy2 = sumx2y - sumy * sumx2 /count;
+
+	if (s22 * s11 - s12*s12 != 0)
+	{
+	a = (sy2*s11 - sy1*s12)/(s22 * s11 - s12*s12);
+	b = (sy1*s22 - sy2 *s12)/(s22* s11 - s12*s12);
+	resPtr->bestFitIndex = -b/(2*a) - size;
+	}
+	else
+	{
+		resPtr->bestFitIndex = 0;
+	}
 }
 
 

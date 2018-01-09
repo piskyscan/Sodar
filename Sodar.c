@@ -130,7 +130,7 @@ int main_process(struct arguments *args)
 					} else
 					{
 						theta = asin(sintheta) * 360.0/(2.0*M_PI);
-						printf("Index %d, Correlation %f, CorrelationStd %f, Std %f, Ratio %f \n",results.offset, results.correlation, results.correlationStd,results.sx,results.sx/results.sx-1);
+						printf("Index %d, BestFit %f, Correlation %f, CorrelationStd %f, Std %f, Ratio %f \n",results.offset,results.bestFitIndex, results.correlation, results.correlationStd,results.sx,results.sx/results.sy-1);
 
 //						for (m = 0;m < frames;m++)
 //						{

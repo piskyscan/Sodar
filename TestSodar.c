@@ -79,7 +79,7 @@ int main()
 
 		estimatePhaseShift3(&raw[0][0],&raw[1][0], BUFFSIZE, &results);
 
-		printf("Index %d, Correlation %f, CorrelationStd %f, Std %f\n",results.offset, results.correlation, results.correlationStd,results.sx);
+		printf("Index %d, Best Fit Index %f, Correlation %f, CorrelationStd %f, Std %f\n",results.offset,results.bestFitIndex, results.correlation, results.correlationStd,results.sx);
 
 		if (results.correlation > 0.95 && results.correlationStd > 0.1)
 		{
