@@ -6,6 +6,7 @@
 #include <math.h>
 #include <alsa/asoundlib.h>
 #include <fftw3.h>
+#include <time.h>
 #include "sodar_fft.h"
 #include "Sodar.h"
 
@@ -52,6 +53,8 @@ int main_process(struct arguments *args)
 
   double raw1[args->frames];
   double raw2[args->frames];
+  clock_t start, end;
+  double cpu_time_used;
 
 
   int frames = args->frames;
@@ -83,7 +86,13 @@ int main_process(struct arguments *args)
   {
     loops--;k++;
 
+    start = clock();
+
     rc = snd_pcm_readi(handle, buffer, frames);
+
+    end = clock();
+    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+
     if (rc == -EPIPE)
     {
       /* EPIPE means overrun */
@@ -130,7 +139,9 @@ int main_process(struct arguments *args)
 					} else
 					{
 						theta = asin(sintheta) * 360.0/(2.0*M_PI);
-						printf("Index %d, BestFit %f, Correlation %f, CorrelationStd %f, Std %f, Ratio %f \n",results.offset,results.bestFitIndex, results.correlation, results.correlationStd,results.sx,results.sx/results.sy-1);
+						printf("Index %d, BestFit %f, Correlation %f, CorrelationStd %f, Std %f, Ratio %f, Time Used %f, hertz %f \n",
+								results.offset,results.bestFitIndex, results.correlation,
+								results.correlationStd,results.sx,results.sx/results.sy-1,cpu_time_used,frames/cpu_time_used);
 
 //						for (m = 0;m < frames;m++)
 //						{

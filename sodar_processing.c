@@ -236,7 +236,7 @@ void estimatePhaseShift3(double *raw1, double *raw2, int n,Results* resPtr)
 
 	// double correlations[n - 2 * size];
 
-	double sumx = 0, sumy = 0, sumxy = 0, sumx2y = 0, sumx2,sumxx2,sumx22;
+	double sumx = 0, sumy = 0, sumxy = 0, sumx2y = 0, sumx2 = 0,sumxx2 = 0,sumx22 = 0;
 	double s11, s12, s22, sy1, sy2;
 
 	int nToUse = n - 2 * size;
